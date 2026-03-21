@@ -124,7 +124,7 @@ export const Home = () => {
           Join thousands of space travelers who have already booked their
           journey to the stars. Your adventure awaits!
         </p>
-        <Link to="/flights">
+        <Link to="/flights" className="inline-block">
           <Button variant="secondary" size="lg">
             Book Your Flight Now
           </Button>
