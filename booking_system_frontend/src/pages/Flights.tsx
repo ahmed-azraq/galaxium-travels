@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Grid, Column, Search as CarbonSearch } from '@carbon/react';
 import type { Flight } from '../types';
 import { LoadingSpinner } from '../components/common';
 import { FlightCard } from '../components/flights/FlightCard';
@@ -8,7 +9,6 @@ import { BookingModal } from '../components/bookings/BookingModal';
 import { getFlights } from '../services/api';
 import type { FlightFilters as FlightFiltersType } from '../services/api';
 import { useUser } from '../hooks/useUser';
-import { Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
@@ -91,92 +91,82 @@ export const Flights = () => {
     : flights;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <h1 className="text-4xl md:text-5xl font-bold text-star-white mb-4">
-          Available <span className="bg-cosmic-gradient bg-clip-text text-transparent">Flights</span>
-        </h1>
-        <p className="text-star-white/70 text-lg">
-          Choose your destination and embark on an interplanetary adventure
-        </p>
-      </motion.div>
+    <div className="stack-lg">
+      <Grid fullWidth>
+        <Column lg={16} md={8} sm={4}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="page-hero"
+          >
+            <h1 className="page-title page-title--compact">
+              Available <span className="page-title-accent">Flights</span>
+            </h1>
+            <p className="page-subtitle">
+              Choose your destination and embark on an interplanetary adventure.
+            </p>
+          </motion.div>
+        </Column>
 
-      {/* Search Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="glass-card p-6"
-      >
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-star-white/50" size={20} />
-          <input
-            type="text"
-            placeholder="Search by origin or destination..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-star-white placeholder-star-white/50 focus:outline-none focus:ring-2 focus:ring-cosmic-purple"
-          />
-        </div>
-      </motion.div>
-
-      {/* Filters */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <FlightFilters filters={filters} onFiltersChange={setFilters} onReset={handleResetFilters} />
-      </motion.div>
-
-      {/* Results Count */}
-      <div className="text-center text-star-white/70">
-        Showing {displayFlights.length} flight{displayFlights.length !== 1 ? 's' : ''}
-      </div>
-
-      {/* Flights Grid */}
-      {isLoading ? (
-        <LoadingSpinner size="lg" text="Loading flights..." />
-      ) : displayFlights.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-12"
-        >
-          <p className="text-star-white/70 text-lg">
-            No flights found matching your criteria
-          </p>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {displayFlights.map((flight) => (
-            <FlightCard
-              key={flight.flight_id}
-              flight={flight}
-              onBook={handleBookFlight}
+        <Column lg={16} md={8} sm={4}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <CarbonSearch
+              size="lg"
+              placeholder="Search by origin or destination..."
+              labelText="Search flights"
+              closeButtonLabelText="Clear search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          ))}
-        </motion.div>
-      )}
+          </motion.div>
+        </Column>
 
-      {/* User Identification Modal */}
+        <Column lg={16} md={8} sm={4}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <FlightFilters filters={filters} onFiltersChange={setFilters} onReset={handleResetFilters} />
+          </motion.div>
+        </Column>
+
+        <Column lg={16} md={8} sm={4}>
+          <div className="results-meta">
+            Showing {displayFlights.length} flight{displayFlights.length !== 1 ? 's' : ''}
+          </div>
+        </Column>
+
+        {isLoading ? (
+          <Column lg={16} md={8} sm={4}>
+            <LoadingSpinner size="lg" text="Loading flights..." />
+          </Column>
+        ) : displayFlights.length === 0 ? (
+          <Column lg={16} md={8} sm={4}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="surface-card content-card">
+              <h2 className="section-heading" style={{ fontSize: '1.5rem', textAlign: 'center' }}>
+                No flights found
+              </h2>
+              <p className="page-subtitle">No flights match your current search and filter criteria.</p>
+            </motion.div>
+          </Column>
+        ) : (
+          displayFlights.map((flight, index) => (
+            <Column key={flight.flight_id} lg={4} md={4} sm={4} style={{ marginBottom: '1.5rem' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
+              >
+                <FlightCard flight={flight} onBook={handleBookFlight} />
+              </motion.div>
+            </Column>
+          ))
+        )}
+      </Grid>
+
       <UserIdentification
         isOpen={showUserModal}
         onClose={() => setShowUserModal(false)}
         onSuccess={handleUserIdentified}
       />
 
-      {/* Booking Confirmation Modal */}
       <BookingModal
         isOpen={showBookingModal}
         onClose={() => setShowBookingModal(false)}

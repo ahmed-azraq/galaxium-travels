@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Modal, Input, Button } from '../common';
+import { Modal as CarbonModal, TextInput } from '@carbon/react';
+import { Button } from '../common';
 import { getUserByCredentials, registerUser, isErrorResponse } from '../../services/api';
 import { useUser } from '../../hooks/useUser';
 import toast from 'react-hot-toast';
@@ -83,30 +84,37 @@ export const UserIdentification = ({ isOpen, onClose, onSuccess }: UserIdentific
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={isNewUser ? 'Create Account' : 'Sign In'}
+    <CarbonModal
+      open={isOpen}
+      onRequestClose={handleClose}
+      modalHeading={isNewUser ? 'Create Account' : 'Sign In'}
+      passiveModal
       size="sm"
+      className="user-identification-modal"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-star-white/70 text-sm mb-4">
+      <form
+        onSubmit={handleSubmit}
+        className="stack-md"
+        style={{ paddingTop: '0.5rem' }}
+      >
+        <p style={{ margin: 0, color: 'var(--cds-text-secondary)', fontSize: '0.875rem' }}>
           {isNewUser
-            ? 'Create an account to book your flight'
-            : 'Enter your name and email to continue'}
+            ? 'Create an account to book your flight.'
+            : 'Enter your name and email to continue.'}
         </p>
 
-        <Input
-          label="Name"
-          type="text"
+        <TextInput
+          id="name"
+          labelText="Name"
           placeholder="John Doe"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
 
-        <Input
-          label="Email"
+        <TextInput
+          id="email"
+          labelText="Email"
           type="email"
           placeholder="john@example.com"
           value={email}
@@ -114,7 +122,7 @@ export const UserIdentification = ({ isOpen, onClose, onSuccess }: UserIdentific
           required
         />
 
-        <div className="flex flex-col gap-3 pt-4">
+        <div className="stack-sm" style={{ paddingTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Button type="submit" isLoading={isLoading} className="w-full">
             {isNewUser ? 'Create Account' : 'Continue'}
           </Button>
@@ -122,7 +130,8 @@ export const UserIdentification = ({ isOpen, onClose, onSuccess }: UserIdentific
           <button
             type="button"
             onClick={() => setIsNewUser(!isNewUser)}
-            className="text-sm text-cosmic-purple hover:text-nebula-pink transition-colors"
+            className="text-button"
+            style={{ color: 'var(--cosmic-purple)' }}
           >
             {isNewUser
               ? 'Already have an account? Sign in'
@@ -130,7 +139,7 @@ export const UserIdentification = ({ isOpen, onClose, onSuccess }: UserIdentific
           </button>
         </div>
       </form>
-    </Modal>
+    </CarbonModal>
   );
 };
 

@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import type { Flight, SeatClass, Quote, Hold } from '../../types';
-import { Modal, Button } from '../common';
+import { Modal as CarbonModal } from '@carbon/react';
+import { Button } from '../common';
 import {
   Plane,
-  DollarSign,
-  Crown,
+  Currency,
+  Tag as TagIcon,
+  Timer as TimerIcon,
+  Flash,
+  ArrowLeft as ArrowLeftIcon,
+  Checkmark,
+  Star,
   Rocket,
-  Check,
-  ArrowLeft,
-  Tag,
-  Timer,
-  Zap,
-} from 'lucide-react';
+} from '@carbon/icons-react';
 import { formatCurrency, formatDate, calculateDuration } from '../../utils/formatters';
 import { createQuote, createHold, confirmHold, releaseHold } from '../../services/api';
 import { storeHold, removeHold } from '../../utils/holdStorage';
@@ -36,7 +37,6 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
   const [hold, setHold] = useState<Hold | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
 
-  // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
       setStep('select');
@@ -47,7 +47,6 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
     }
   }, [isOpen]);
 
-  // Countdown timer
   useEffect(() => {
     if (!hold || step !== 'hold') return;
 
@@ -70,9 +69,9 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
       price: flight.economy_price,
       seats: flight.economy_seats_available,
       icon: Plane,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/30',
+      color: '#78a9ff',
+      background: 'rgba(120, 169, 255, 0.12)',
+      borderColor: 'rgba(120, 169, 255, 0.28)',
       features: ['Standard seating', 'In-flight entertainment', 'Complimentary snacks'],
     },
     {
@@ -80,10 +79,10 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
       class: 'business' as SeatClass,
       price: flight.business_price,
       seats: flight.business_seats_available,
-      icon: Crown,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/10',
-      borderColor: 'border-purple-500/30',
+      icon: Star,
+      color: '#be95ff',
+      background: 'rgba(190, 149, 255, 0.12)',
+      borderColor: 'rgba(190, 149, 255, 0.28)',
       features: ['Premium seating', 'Priority boarding', 'Gourmet meals', 'Extra legroom'],
     },
     {
@@ -92,9 +91,9 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
       price: flight.galaxium_price,
       seats: flight.galaxium_seats_available,
       icon: Rocket,
-      color: 'text-alien-green',
-      bgColor: 'bg-alien-green/10',
-      borderColor: 'border-alien-green/30',
+      color: 'var(--alien-green)',
+      background: 'rgba(66, 190, 101, 0.12)',
+      borderColor: 'rgba(66, 190, 101, 0.28)',
       features: ['Luxury pods', 'VIP lounge access', 'Personal concierge', 'Zero-G experience'],
     },
   ];
@@ -107,36 +106,31 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
   const isExpired = hold !== null && timeLeft === 0;
 
   const flightSummary = (
-    <div className="glass-card p-4 bg-white/5">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="p-2 rounded-lg bg-cosmic-gradient">
-          <Plane className="text-white" size={20} />
+    <div className="surface-card content-card">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="route-badge">
+          <Plane size={18} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-star-white">
+          <h3 className="content-card__title" style={{ fontSize: '1.125rem' }}>
             {flight.origin} → {flight.destination}
           </h3>
-          <p className="text-xs text-star-white/60">Flight #{flight.flight_id}</p>
+          <p className="content-card__eyebrow">Flight #{flight.flight_id}</p>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3 text-sm">
+
+      <div className="info-grid info-grid--three">
         <div>
-          <p className="text-xs text-star-white/60 mb-1">Departure</p>
-          <p className="text-star-white font-medium">
-            {formatDate(flight.departure_time, 'MMM dd')}
-          </p>
+          <p className="info-label">Departure</p>
+          <p className="info-value">{formatDate(flight.departure_time, 'MMM dd')}</p>
         </div>
         <div>
-          <p className="text-xs text-star-white/60 mb-1">Arrival</p>
-          <p className="text-star-white font-medium">
-            {formatDate(flight.arrival_time, 'MMM dd')}
-          </p>
+          <p className="info-label">Arrival</p>
+          <p className="info-value">{formatDate(flight.arrival_time, 'MMM dd')}</p>
         </div>
         <div>
-          <p className="text-xs text-star-white/60 mb-1">Duration</p>
-          <p className="text-star-white font-medium">
-            {calculateDuration(flight.departure_time, flight.arrival_time)}
-          </p>
+          <p className="info-label">Duration</p>
+          <p className="info-value">{calculateDuration(flight.departure_time, flight.arrival_time)}</p>
         </div>
       </div>
     </div>
@@ -243,12 +237,14 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
 
   // Step 1: Seat class selection
   const renderSelectStep = () => (
-    <div className="space-y-6">
+    <div className="stack-lg">
       {flightSummary}
 
-      <div>
-        <h4 className="text-sm font-semibold text-star-white mb-3">Select Seat Class</h4>
-        <div className="space-y-3">
+      <div className="stack-md">
+        <h4 className="section-heading" style={{ marginBottom: 0 }}>
+          Select Seat Class
+        </h4>
+        <div className="stack-sm">
           {seatClasses.map((sc) => {
             const Icon = sc.icon;
             const isSelected = selectedClass === sc.class;
@@ -259,30 +255,62 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
                 key={sc.class}
                 onClick={() => !isSoldOut && setSelectedClass(sc.class)}
                 disabled={isSoldOut}
-                className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                  isSelected
-                    ? `${sc.borderColor} ${sc.bgColor}`
-                    : 'border-white/10 bg-white/5 hover:border-white/20'
-                } ${isSoldOut ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                className="content-card"
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  borderRadius: 'var(--radius-lg)',
+                  border: '2px solid',
+                  textAlign: 'left',
+                  cursor: isSoldOut ? 'not-allowed' : 'pointer',
+                  opacity: isSoldOut ? 0.5 : 1,
+                  transition: 'transform 180ms ease, border-color 180ms ease, background 180ms ease',
+                  borderColor: isSelected ? sc.borderColor : 'var(--border-subtle)',
+                  background: isSelected ? sc.background : 'rgba(255, 255, 255, 0.04)',
+                }}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Icon size={20} className={sc.color} />
-                    <span className="font-semibold text-star-white">{sc.name}</span>
-                    {isSelected && <Check size={18} className={sc.color} />}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <Icon size={20} style={{ color: sc.color, flexShrink: 0 }} />
+                    <span className="content-card__title" style={{ margin: 0 }}>
+                      {sc.name}
+                    </span>
+                    {isSelected && <Checkmark size={18} style={{ color: sc.color, flexShrink: 0 }} />}
                   </div>
-                  <div className="text-right">
-                    <div className={`text-lg font-bold ${sc.color}`}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div
+                      style={{
+                        fontSize: '1.125rem',
+                        lineHeight: 1.2,
+                        fontWeight: 700,
+                        color: sc.color,
+                      }}
+                    >
                       {formatCurrency(sc.price)}
                     </div>
-                    <div className="text-xs text-star-white/60">
+                    <div className="info-label">
                       {isSoldOut ? 'Sold Out' : `${sc.seats} left`}
                     </div>
                   </div>
                 </div>
-                <ul className="text-xs text-star-white/70 space-y-1">
+                <ul className="stack-sm info-label" style={{ margin: 0, paddingLeft: '1rem' }}>
                   {sc.features.map((f, i) => (
-                    <li key={i}>• {f}</li>
+                    <li key={i}>{f}</li>
                   ))}
                 </ul>
               </button>
@@ -292,14 +320,16 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
       </div>
 
       {user && (
-        <div className="glass-card p-4 bg-white/5">
-          <h4 className="text-sm font-semibold text-star-white mb-2">Passenger</h4>
-          <p className="text-star-white">{user.name}</p>
-          <p className="text-star-white/60 text-sm">{user.email}</p>
+        <div className="surface-card content-card stack-sm">
+          <h4 className="section-heading" style={{ marginBottom: 0 }}>
+            Passenger
+          </h4>
+          <p className="info-value">{user.name}</p>
+          <p className="info-label">{user.email}</p>
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         <Button variant="secondary" onClick={onClose} disabled={isLoading} className="flex-1">
           Cancel
         </Button>
@@ -314,48 +344,99 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
   const renderQuoteStep = () => {
     const Icon = selectedClassData?.icon || Plane;
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-cosmic-purple/10 border border-cosmic-purple/30">
-          <Tag size={16} className="text-cosmic-purple" />
-          <span className="text-xs text-star-white/60">Quote ID</span>
-          <span className="font-mono font-bold text-cosmic-purple ml-auto">{quote?.quoteId}</span>
+      <div className="stack-lg">
+        <div
+          className="surface-card"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.875rem 1rem',
+            border: '1px solid rgba(190, 132, 255, 0.32)',
+            background: 'rgba(190, 132, 255, 0.14)',
+          }}
+        >
+          <TagIcon size={16} style={{ color: 'var(--cosmic-purple)', flexShrink: 0 }} />
+          <span className="info-label">Quote ID</span>
+          <span
+            style={{
+              marginLeft: 'auto',
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              color: 'var(--cosmic-purple)',
+            }}
+          >
+            {quote?.quoteId}
+          </span>
         </div>
 
         {flightSummary}
 
-        <div className="glass-card p-4 bg-white/5 space-y-3">
-          <h4 className="text-sm font-semibold text-star-white">Price Breakdown</h4>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Icon size={16} className={selectedClassData?.color} />
-              <span className="text-sm text-star-white/70">{selectedClassData?.name} × 1</span>
+        <div className="surface-card content-card stack-md">
+          <h4 className="section-heading" style={{ marginBottom: 0 }}>
+            Price Breakdown
+          </h4>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Icon
+                size={16}
+                style={{ color: selectedClassData?.color || 'var(--space-blue)', flexShrink: 0 }}
+              />
+              <span className="info-value">
+                {selectedClassData?.name} × 1
+              </span>
             </div>
-            <span className="text-star-white font-medium">
-              {formatCurrency(quote?.pricePerSeat || 0)}
-            </span>
+            <span className="info-value">{formatCurrency(quote?.pricePerSeat || 0)}</span>
           </div>
-          <div className="border-t border-white/10 pt-3 flex items-center justify-between">
-            <span className="font-semibold text-star-white">Total</span>
-            <span className="text-xl font-bold text-alien-green">
+          <div
+            style={{
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+              paddingTop: '0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span className="content-card__title" style={{ margin: 0 }}>
+              Total
+            </span>
+            <span
+              style={{
+                fontSize: '1.25rem',
+                lineHeight: 1.2,
+                fontWeight: 700,
+                color: 'var(--alien-green)',
+              }}
+            >
               {formatCurrency(quote?.totalPrice || 0)}
             </span>
           </div>
-          <p className="text-xs text-star-white/50">
+          <p className="info-label">
             Quote valid for 24 hours · Price calculated by inventory service
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Button
             variant="secondary"
             onClick={() => setStep('select')}
             disabled={isLoading}
             className="flex-1"
           >
-            <ArrowLeft size={16} /> Back
+            <ArrowLeftIcon size={16} /> Back
           </Button>
           <Button onClick={handlePlaceHold} isLoading={isLoading} className="flex-1">
-            <Timer size={16} /> Place Hold →
+            <TimerIcon size={16} /> Place Hold →
           </Button>
         </div>
       </div>
@@ -364,33 +445,66 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
 
   // Step 3: Hold active with countdown
   const renderHoldStep = () => (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 p-3 rounded-lg bg-alien-green/10 border border-alien-green/30">
-        <Zap size={16} className="text-alien-green" />
-        <span className="text-xs text-star-white/60">Hold ID</span>
-        <span className="font-mono font-bold text-alien-green ml-auto">{hold?.holdId}</span>
+    <div className="stack-lg">
+      <div
+        className="surface-card"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.875rem 1rem',
+          border: '1px solid rgba(66, 190, 101, 0.32)',
+          background: 'rgba(66, 190, 101, 0.14)',
+        }}
+      >
+        <Flash size={16} style={{ color: 'var(--alien-green)', flexShrink: 0 }} />
+        <span className="info-label">Hold ID</span>
+        <span
+          style={{
+            marginLeft: 'auto',
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            color: 'var(--alien-green)',
+          }}
+        >
+          {hold?.holdId}
+        </span>
       </div>
 
-      {/* Countdown timer */}
       <div
-        className={`p-6 text-center rounded-xl border-2 ${
-          isExpired
-            ? 'border-red-500/50 bg-red-500/5'
-            : 'border-solar-orange/50 bg-solar-orange/5'
-        }`}
+        className="surface-card"
+        style={{
+          padding: '1.5rem',
+          textAlign: 'center',
+          border: '2px solid',
+          borderColor: isExpired ? 'rgba(255, 131, 131, 0.45)' : 'rgba(255, 131, 43, 0.4)',
+          background: isExpired ? 'rgba(255, 131, 131, 0.08)' : 'rgba(255, 131, 43, 0.08)',
+        }}
       >
-        <p className="text-xs text-star-white/60 mb-2 uppercase tracking-widest">
+        <p
+          className="info-label"
+          style={{
+            marginBottom: '0.5rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.16em',
+          }}
+        >
           {isExpired ? 'Hold Expired' : 'Time to Confirm'}
         </p>
         <div
-          className={`text-5xl font-mono font-bold tabular-nums ${
-            isExpired ? 'text-red-500' : 'text-solar-orange'
-          }`}
+          style={{
+            fontSize: 'clamp(2.5rem, 6vw, 3.5rem)',
+            lineHeight: 1,
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            fontVariantNumeric: 'tabular-nums',
+            color: isExpired ? '#ff8389' : 'var(--solar-orange)',
+          }}
         >
           {isExpired ? 'EXPIRED' : timerDisplay}
         </div>
         {!isExpired && (
-          <p className="text-xs text-star-white/50 mt-2">
+          <p className="info-label" style={{ marginTop: '0.75rem' }}>
             Seat is reserved — confirm before time runs out
           </p>
         )}
@@ -398,12 +512,29 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
 
       {flightSummary}
 
-      <div className="flex items-center justify-between p-4 rounded-xl bg-cosmic-gradient">
-        <div className="flex items-center gap-2">
-          <DollarSign className="text-white" size={20} />
-          <span className="text-white font-semibold">Total</span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          padding: '1rem 1.125rem',
+          background: 'var(--cosmic-gradient)',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Currency size={20} style={{ color: '#ffffff', flexShrink: 0 }} />
+          <span style={{ color: '#ffffff', fontWeight: 600 }}>Total</span>
         </div>
-        <span className="text-xl font-bold text-white">
+        <span
+          style={{
+            fontSize: '1.25rem',
+            lineHeight: 1.2,
+            fontWeight: 700,
+            color: '#ffffff',
+          }}
+        >
           {formatCurrency(quote?.totalPrice || 0)}
         </span>
       </div>
@@ -414,7 +545,7 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
         </Button>
       ) : (
         <>
-          <div className="flex gap-3">
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <Button
               variant="danger"
               onClick={handleReleaseHold}
@@ -436,11 +567,18 @@ export const BookingModal = ({ isOpen, onClose, flight, onSuccess }: BookingModa
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={getModalTitle()} size="md">
+    <CarbonModal
+      open={isOpen}
+      onRequestClose={onClose}
+      modalHeading={getModalTitle()}
+      passiveModal
+      size="md"
+      className="booking-modal"
+    >
       {step === 'select' && renderSelectStep()}
       {step === 'quote' && renderQuoteStep()}
       {step === 'hold' && renderHoldStep()}
-    </Modal>
+    </CarbonModal>
   );
 };
 

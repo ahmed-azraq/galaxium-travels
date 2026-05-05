@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { Loading } from '@carbon/react';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -6,22 +6,31 @@ interface LoadingSpinnerProps {
 }
 
 export const LoadingSpinner = ({ size = 'md', text }: LoadingSpinnerProps) => {
-  const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-12 w-12',
-    lg: 'h-16 w-16',
-  };
+  const carbonSize =
+    size === 'sm' ? 'sm' :
+    size === 'md' ? 'md' :
+    size === 'lg' ? 'lg' : 'md';
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-8">
-      <motion.div
-        className={`${sizeClasses[size]} border-4 border-cosmic-purple border-t-transparent rounded-full`}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '14rem',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '1rem',
+        padding: '2rem 0',
+      }}
+    >
+      <Loading
+        description={text || 'Loading'}
+        withOverlay={false}
+        small={carbonSize === 'sm'}
       />
-      {text && (
-        <p className="text-star-white/70 text-sm">{text}</p>
-      )}
+      {text ? (
+        <p style={{ margin: 0, color: 'var(--cds-text-secondary)', fontSize: '0.875rem' }}>{text}</p>
+      ) : null}
     </div>
   );
 };

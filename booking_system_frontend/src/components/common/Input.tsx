@@ -1,31 +1,47 @@
 import type { InputHTMLAttributes } from 'react';
-import clsx from 'clsx';
+import { TextInput } from '@carbon/react';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
+  id: string;
 }
 
-export const Input = ({ label, error, className, ...props }: InputProps) => {
+export const Input = ({
+  label,
+  error,
+  className,
+  id,
+  type,
+  placeholder,
+  value,
+  defaultValue,
+  onChange,
+  onBlur,
+  disabled,
+  required,
+  name,
+  autoComplete,
+}: InputProps) => {
   return (
-    <div className="w-full">
-      {label && (
-        <label className="block text-sm font-medium text-star-white mb-2">
-          {label}
-        </label>
-      )}
-      <input
-        className={clsx(
-          'input-field',
-          error && 'border-red-500 focus:ring-red-500',
-          className
-        )}
-        {...props}
-      />
-      {error && (
-        <p className="mt-1 text-sm text-red-400">{error}</p>
-      )}
-    </div>
+    <TextInput
+      id={id}
+      labelText={label || ''}
+      invalid={!!error}
+      invalidText={error}
+      hideLabel={!label}
+      className={className}
+      type={type}
+      placeholder={placeholder}
+      value={value as string | number | undefined}
+      defaultValue={defaultValue as string | number | undefined}
+      onChange={onChange as any}
+      onBlur={onBlur as any}
+      disabled={disabled}
+      required={required}
+      name={name}
+      autoComplete={autoComplete}
+    />
   );
 };
 
