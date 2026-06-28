@@ -124,11 +124,13 @@ export const Home = () => {
           Join thousands of space travelers who have already booked their
           journey to the stars. Your adventure awaits!
         </p>
-        <Link to="/flights">
-          <Button variant="secondary" size="lg">
-            Book Your Flight Now
-          </Button>
-        </Link>
+        <div className="flex justify-center">
+          <Link to="/flights">
+            <Button variant="secondary" size="lg">
+              Book Your Flight Now
+            </Button>
+          </Link>
+        </div>
       </motion.section>
     </div>
   );
